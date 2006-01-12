@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use base 'Authen::Simple::Adapter';
 
-use Authen::PAM;
+use Authen::PAM      qw[:constants];
 use Params::Validate qw[];
 
-our $VERSION = 0.1;
+our $VERSION = 0.2;
 
 __PACKAGE__->options({
     service => {
@@ -48,21 +48,7 @@ sub check {
 
     unless ( ref $pam ) {
 
-        my $error = undef;
-
-        if ( $pam == PAM_SERVICE_ERR ) {
-            $error = 'Error in service module.';
-        }
-
-        if ( $pam == PAM_SYSTEM_ERR ) {
-            $error = 'System error.';
-        }
-
-        if ( $pam == PAM_BUF_ERR ) {
-            $error = 'Memory buffer error.';
-        }
-
-        $error ||= "Unknown error has occurred with code '$pam'.";
+        my $error = Authen::PAM->pam_strerror($pam);
 
         $self->log->error( qq/Failed to authenticate user '$username' using service '$service'. Reason: '$error'/ )
           if $self->log;
@@ -74,29 +60,7 @@ sub check {
 
     unless ( $result == PAM_SUCCESS ) {
 
-        my $error = undef;
-
-        if ( $result == PAM_AUTH_ERR ) {
-            $error = 'Authentication failure.';
-        }
-
-        if ( $result == PAM_CRED_INSUFFICIENT ) {
-            $error = 'Cannot access authentication data due to insufficient credentials.';
-        }
-
-        if ( $result == PAM_AUTHINFO_UNAVAIL ) {
-            $error = 'Underlying authentication service cannot retrieve authentication information.';
-        }
-
-        if ( $result == PAM_USER_UNKNOWN ) {
-            $error = 'User not known to the underlying authentication module.';
-        }
-
-        if ( $result == PAM_MAXTRIES ) {
-            $error = 'An authentication service has maintained a retry count which has been reached.';
-        }
-
-        $error ||= "Unknown error has occurred with code '$result'.";
+        my $error = $pam->pam_strerror($result);
 
         $self->log->debug( qq/Failed to authenticate user '$username' using service '$service'. Reason: '$error'/ )
           if $self->log;
@@ -108,25 +72,7 @@ sub check {
 
     unless ( $result == PAM_SUCCESS ) {
 
-        my $error = undef;
-
-        if ( $result == PAM_PERM_DENIED ) {
-            $error = 'Permission denied.';
-        }
-
-        if ( $result == PAM_AUTHTOK_ERR ) {
-            $error = 'A failure occurred while updating the authentication token.';
-        }
-
-        if ( $result == PAM_USER_UNKNOWN ) {
-            $error = 'The user is not known to the authentication module.';
-        }
-
-        if ( $result == PAM_TRY_AGAIN ) {
-            $error = 'Preliminary checks for changing the password have failed. Try again later.';
-        }
-
-        $error ||= "Unknown error has occurred with code '$result'.";
+        my $error = $pam->pam_strerror($result);
 
         $self->log->debug( qq/Failed to authenticate user '$username' using service '$service'. Reason: '$error'/ )
           if $self->log;

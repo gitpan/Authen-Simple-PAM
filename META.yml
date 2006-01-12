@@ -1,8 +1,8 @@
 ---
 name: Authen-Simple-PAM
-version: 0.1
+version: 0.2
 author:
-  - Christian Hansen C<ch@ngmedia.com>
+  - 'Christian Hansen C<ch@ngmedia.com>'
 abstract: Simple PAM authentication
 license: perl
 requires:
@@ -11,5 +11,5 @@ requires:
 provides:
   Authen::Simple::PAM:
     file: lib/Authen/Simple/PAM.pm
-    version: 0.1
+    version: 0.2
 generated_by: Module::Build version 0.2611
